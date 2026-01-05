@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 20% 8%;
+    --foreground: 45 20% 90%;
+
+    --card: 220 18% 12%;
+    --card-foreground: 45 20% 90%;
+
+    --popover: 220 18% 10%;
+    --popover-foreground: 45 20% 90%;
+
+    --primary: 38 60% 55%;
+    --primary-foreground: 220 20% 8%;
+
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 45 15% 75%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 220 20% 20%;
+    --accent-foreground: 45 20% 90%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 45 20% 90%;
+
+    --border: 220 15% 20%;
+    --input: 220 18% 15%;
+    --ring: 212.7 26.8% 83.9%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', serif;
+  }
+}
+
+@layer components {
+  .zen-card {
+    @apply p-4 rounded-2xl bg-card border border-border;
+  }
+
+  .zen-input {
+    @apply px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors;
+  }
+
+  .zen-button-primary {
+    @apply px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .zen-button-ghost {
+    @apply px-4 py-2 text-muted-foreground hover:text-foreground transition-colors;
+  }
+
+  .zen-button-secondary {
+    @apply px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-medium transition-all;
+  }
+}
+
+@layer utilities {
+  .fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
