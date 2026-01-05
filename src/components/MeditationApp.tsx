@@ -31,6 +31,12 @@ export const MeditationApp = () => {
   } = useMeditationStorage();
 
   const {
+    playBackgroundMusic,
+    stopBackgroundMusic,
+    playGong,
+  } = useAudio();
+
+  const {
     currentStageIndex,
     timeLeft,
     progress,
@@ -50,12 +56,6 @@ export const MeditationApp = () => {
       setScreen('complete');
     },
   });
-
-  const {
-    playBackgroundMusic,
-    stopBackgroundMusic,
-    playGong,
-  } = useAudio();
 
   useEffect(() => {
     loadMeditations();
