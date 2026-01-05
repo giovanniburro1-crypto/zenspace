@@ -16,6 +16,7 @@ const presetStages = [
 export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
   const [name, setName] = useState('');
   const [duration, setDuration] = useState(5);
+  const [durationInput, setDurationInput] = useState('5');
   const [showPresets, setShowPresets] = useState(true);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -24,6 +25,7 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
       onAdd(name.trim(), duration);
       setName('');
       setDuration(5);
+      setDurationInput('5');
       setShowPresets(true);
     }
   };
@@ -35,14 +37,9 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value === '') {
-      setDuration(0);
-    } else {
-      const num = parseInt(value);
-      if (!isNaN(num)) {
-        setDuration(num);
-      }
-    }
+    setDurationInput(value);
+    const num = parseInt(value) || 0;
+    setDuration(num);
   };
 
   return (
@@ -75,14 +72,16 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
             placeholder="Название этапа"
             className="zen-input flex-1"
           />
-          <div className="flex items-center gap-2 bg-input rounded-xl px-4">
+          <div className="flex items-center gap-2 bg-input rounded-xl px-3 py-2 flex-shrink-0">
             <input
-              type="number"
-              value={duration}
+              type="text"
+              inputMode="numeric"
+              value={durationInput}
               onChange={handleDurationChange}
-              className="w-12 bg-transparent text-center text-foreground focus:outline-none"
+              maxLength="3"
+              className="w-10 bg-transparent text-center text-foreground focus:outline-none text-sm"
             />
-            <span className="text-muted-foreground text-sm">мин</span>
+            <span className="text-muted-foreground text-xs">мин</span>
           </div>
         </div>
 
