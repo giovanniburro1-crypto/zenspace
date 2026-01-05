@@ -45,17 +45,21 @@ export const MeditationApp = () => {
     stopTimer,
   } = useMeditationTimer({
     stages: currentMeditation?.stages || [],
-    onStageChange: (stageIndex) => {
-      // Play gong when stage changes (except first stage)
-      if (stageIndex > 0) {
-        playGong();
-      }
+    onStageChange: () => {
+      // Will be called when stage changes
     },
     onComplete: () => {
       stopBackgroundMusic();
       setScreen('complete');
     },
   });
+
+  // Play gong when stage changes
+  useEffect(() => {
+    if (isRunning && currentStageIndex > 0 && currentMeditation) {
+      playGong();
+    }
+  }, [currentStageIndex, isRunning, currentMeditation, playGong]);
 
   useEffect(() => {
     loadMeditations();
