@@ -17,6 +17,12 @@ export const useMeditationTimer = ({
   const [isRunning, setIsRunning] = useState(false);
   const [totalStageTime, setTotalStageTime] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const stagesRef = useRef(stages);
+
+  // Update ref when stages change
+  useEffect(() => {
+    stagesRef.current = stages;
+  }, [stages]);
 
   const currentStage = stages[currentStageIndex];
 
@@ -38,32 +44,39 @@ export const useMeditationTimer = ({
 
   // Main timer loop
   useEffect(() => {
-    if (!isRunning || stages.length === 0) return;
+    if (!isRunning || stages.length === 0) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
 
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
-          // Move to next stage
-          setCurrentStageIndex((prevIndex) => {
-            const nextIndex = prevIndex + 1;
+        const newTimeLeft = prev - 1;
 
-            if (nextIndex >= stages.length) {
-              // Meditation complete
+        if (newTimeLeft <= 0) {
+          // Current stage finished, move to next
+          setCurrentStageIndex((currentIdx) => {
+            const nextIdx = currentIdx + 1;
+
+            if (nextIdx >= stagesRef.current.length) {
+              // All stages complete
               setIsRunning(false);
               onComplete();
-              return prevIndex;
+              return currentIdx;
             } else {
-              // Start next stage
-              const nextStageDuration = stages[nextIndex].duration * 60;
+              // Move to next stage
+              const nextStageDuration = stagesRef.current[nextIdx].duration * 60;
               setTotalStageTime(nextStageDuration);
-              onStageChange(nextIndex);
-              return nextIndex;
+              onStageChange(nextIdx);
+              setTimeLeft(nextStageDuration);
+              return nextIdx;
             }
           });
 
           return 0;
         }
-        return prev - 1;
+
+        return newTimeLeft;
       });
     }, 1000);
 
@@ -73,7 +86,7 @@ export const useMeditationTimer = ({
   }, [isRunning, stages, onComplete, onStageChange]);
 
   const progress =
-    totalStageTime > 0 ? (totalStageTime - timeLeft) / totalStageTime : 0;
+    totalStageTime > 0 ? ((totalStageTime - timeLeft) / totalStageTime) * 100 : 0;
 
   return {
     currentStage,
