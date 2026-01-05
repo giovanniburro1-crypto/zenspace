@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 
-const presetStages = ['Дыхание', 'Расслабление', 'Тишина', 'Осознанность', 'Тело'];
-
 interface AddStageFormProps {
   onAdd: (name: string, duration: number) => void;
 }
+
+const presetStages = [
+  'Дыхание',
+  'Расслабление',
+  'Размышление',
+  'Концентрация',
+  'Отпускание',
+];
 
 export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
   const [name, setName] = useState('');
@@ -25,6 +31,18 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
   const handlePresetClick = (preset: string) => {
     setName(preset);
     setShowPresets(false);
+  };
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '') {
+      setDuration(0);
+    } else {
+      const num = parseInt(value);
+      if (!isNaN(num)) {
+        setDuration(num);
+      }
+    }
   };
 
   return (
@@ -61,10 +79,7 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
             <input
               type="number"
               value={duration}
-              onChange={(e) =>
-                setDuration(Math.max(1, parseInt(e.target.value) || 1))
-              }
-              min="1"
+              onChange={handleDurationChange}
               className="w-12 bg-transparent text-center text-foreground focus:outline-none"
             />
             <span className="text-muted-foreground text-sm">мин</span>
