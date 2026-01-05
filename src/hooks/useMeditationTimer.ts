@@ -18,8 +18,8 @@ export const useMeditationTimer = ({
   const [totalStageTime, setTotalStageTime] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const stagesRef = useRef(stages);
+  const currentStageIndexRef = useRef(0);
 
-  // Update ref when stages change
   useEffect(() => {
     stagesRef.current = stages;
   }, [stages]);
@@ -33,6 +33,7 @@ export const useMeditationTimer = ({
     setTimeLeft(stageDuration);
     setTotalStageTime(stageDuration);
     setCurrentStageIndex(0);
+    currentStageIndexRef.current = 0;
     setIsRunning(true);
     onStageChange(0);
   }, [stages, onStageChange]);
@@ -42,7 +43,7 @@ export const useMeditationTimer = ({
     if (intervalRef.current) clearInterval(intervalRef.current);
   }, []);
 
-  // Main timer loop
+  // Main timer loop - updates every 100ms for smooth animation
   useEffect(() => {
     if (!isRunning || stages.length === 0) {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -51,34 +52,31 @@ export const useMeditationTimer = ({
 
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        const newTimeLeft = prev - 1;
+        const newTimeLeft = prev - 0.1;
 
         if (newTimeLeft <= 0) {
           // Current stage finished, move to next
-          setCurrentStageIndex((currentIdx) => {
-            const nextIdx = currentIdx + 1;
+          const nextIdx = currentStageIndexRef.current + 1;
 
-            if (nextIdx >= stagesRef.current.length) {
-              // All stages complete
-              setIsRunning(false);
-              onComplete();
-              return currentIdx;
-            } else {
-              // Move to next stage
-              const nextStageDuration = stagesRef.current[nextIdx].duration * 60;
-              setTotalStageTime(nextStageDuration);
-              onStageChange(nextIdx);
-              setTimeLeft(nextStageDuration);
-              return nextIdx;
-            }
-          });
-
-          return 0;
+          if (nextIdx >= stagesRef.current.length) {
+            // All stages complete
+            setIsRunning(false);
+            onComplete();
+            return 0;
+          } else {
+            // Move to next stage
+            const nextStageDuration = stagesRef.current[nextIdx].duration * 60;
+            setTotalStageTime(nextStageDuration);
+            setCurrentStageIndex(nextIdx);
+            currentStageIndexRef.current = nextIdx;
+            onStageChange(nextIdx);
+            return nextStageDuration;
+          }
         }
 
         return newTimeLeft;
       });
-    }, 1000);
+    }, 100); // Update every 100ms instead of 1s
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -91,8 +89,8 @@ export const useMeditationTimer = ({
   return {
     currentStage,
     currentStageIndex,
-    timeLeft,
-    progress,
+    timeLeft: Math.max(0, Math.round(timeLeft)),
+    progress: Math.min(100, progress),
     isRunning,
     startTimer,
     stopTimer,

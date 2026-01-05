@@ -1,25 +1,34 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { SavedMeditation, AppScreen } from '@/types/meditation';
-import { HomeScreen } from './HomeScreen';
-import { EditorScreen } from './EditorScreen';
-import { MeditationScreen } from './MeditationScreen';
-import { CompleteScreen } from './CompleteScreen';
+import type { SavedMeditation } from '@/types/meditation';
 import { useMeditationStorage } from '@/hooks/useMeditationStorage';
 import { useMeditationTimer } from '@/hooks/useMeditationTimer';
 import { useAudio } from '@/hooks/useAudio';
-import { musicOptions } from './MusicSelector';
+import { HomeScreen } from './HomeScreen';
+import { EditorScreen } from './EditorScreen';
+import { MeditationScreen } from './MeditationScreen';
+import { DonateModal } from './DonateModal';
+
+const musicOptions = [
+  { id: 'silence', name: 'Тишина', audioFile: null },
+  { id: 'nature', name: 'Природа', audioFile: '/audio/nature.mp3' },
+  { id: 'water', name: 'Вода', audioFile: '/audio/water.mp3' },
+  { id: 'guitar', name: 'Гитара', audioFile: '/audio/guitar.mp3' },
+  { id: 'bowl', name: 'Поющая чаша', audioFile: '/audio/bowl.mp3' },
+  { id: 'ambient', name: 'Атмосфера', audioFile: '/audio/ambient.mp3' },
+];
 
 export const MeditationApp = () => {
-  const [screen, setScreen] = useState<AppScreen>('home');
-  const [currentMeditation, setCurrentMeditation] = useState<SavedMeditation | null>(
-    null
-  );
+  const [screen, setScreen] = useState<'home' | 'editor' | 'meditation' | 'complete'>('home');
+  const [currentMeditation, setCurrentMeditation] = useState<SavedMeditation | null>(null);
   const [editingMeditation, setEditingMeditation] = useState<SavedMeditation | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const { meditations, saveMeditation, deleteMeditation, isLoaded } =
-    useMeditationStorage();
-  const { playGong, playCompletionSound, playBackgroundMusic, stopBackgroundMusic } =
-    useAudio();
+  const {
+    meditations,
+    saveMeditation,
+    deleteMeditation,
+    loadMeditations,
+  } = useMeditationStorage();
 
   const {
     currentStageIndex,
@@ -30,20 +39,28 @@ export const MeditationApp = () => {
     stopTimer,
   } = useMeditationTimer({
     stages: currentMeditation?.stages || [],
-    onStageChange: useCallback(
-      (stageIndex: number) => {
-        if (stageIndex > 0) {
-          playGong();
-        }
-      },
-      [playGong]
-    ),
-    onComplete: useCallback(() => {
-      playCompletionSound();
+    onStageChange: (stageIndex) => {
+      // Play gong when stage changes (except first stage)
+      if (stageIndex > 0) {
+        playGong();
+      }
+    },
+    onComplete: () => {
       stopBackgroundMusic();
       setScreen('complete');
-    }, [playCompletionSound, stopBackgroundMusic]),
+    },
   });
+
+  const {
+    playBackgroundMusic,
+    stopBackgroundMusic,
+    playGong,
+  } = useAudio();
+
+  useEffect(() => {
+    loadMeditations();
+    setIsLoaded(true);
+  }, [loadMeditations]);
 
   const handleCreateNew = useCallback(() => {
     setEditingMeditation(null);
@@ -155,10 +172,10 @@ export const MeditationApp = () => {
         />
       )}
 
-      {screen === 'complete' && currentMeditation && (
-        <CompleteScreen
-          meditation={currentMeditation}
-          onRestart={handleRestart}
+      {screen === 'complete' && (
+        <DonateModal
+          isOpen={true}
+          onClose={handleRestart}
         />
       )}
     </div>

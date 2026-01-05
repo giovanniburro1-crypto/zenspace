@@ -15,16 +15,15 @@ const presetStages = [
 
 export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
   const [name, setName] = useState('');
-  const [duration, setDuration] = useState(5);
   const [durationInput, setDurationInput] = useState('5');
   const [showPresets, setShowPresets] = useState(true);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const duration = parseInt(durationInput) || 0;
     if (name.trim() && duration > 0) {
       onAdd(name.trim(), duration);
       setName('');
-      setDuration(5);
       setDurationInput('5');
       setShowPresets(true);
     }
@@ -36,10 +35,7 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
   };
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setDurationInput(value);
-    const num = parseInt(value) || 0;
-    setDuration(num);
+    setDurationInput(e.target.value);
   };
 
   return (
@@ -72,22 +68,22 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
             placeholder="Название этапа"
             className="zen-input flex-1"
           />
-          <div className="flex items-center gap-2 bg-input rounded-xl px-3 py-2 flex-shrink-0">
+          <div className="flex items-center gap-1 bg-input rounded-xl px-2 py-2 shrink-0">
             <input
               type="text"
               inputMode="numeric"
               value={durationInput}
               onChange={handleDurationChange}
-              maxLength="3"
-              className="w-10 bg-transparent text-center text-foreground focus:outline-none text-sm"
+              maxLength="2"
+              className="w-8 bg-transparent text-center text-foreground focus:outline-none text-sm"
             />
-            <span className="text-muted-foreground text-xs">мин</span>
+            <span className="text-muted-foreground text-xs whitespace-nowrap">мин</span>
           </div>
         </div>
 
         <button
           type="submit"
-          disabled={!name.trim() || duration <= 0}
+          disabled={!name.trim() || !durationInput || parseInt(durationInput) <= 0}
           className="w-full py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-medium flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
           <Plus size={18} />
