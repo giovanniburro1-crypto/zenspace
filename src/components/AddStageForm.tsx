@@ -34,10 +34,6 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
     setShowPresets(false);
   };
 
-  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDurationInput(e.target.value);
-  };
-
   return (
     <div className="zen-card space-y-4">
       <h3 className="text-lg text-muted-foreground">Добавить этап</h3>
@@ -57,7 +53,7 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <input
             type="text"
             value={name}
@@ -66,18 +62,18 @@ export const AddStageForm = ({ onAdd }: AddStageFormProps) => {
               setShowPresets(false);
             }}
             placeholder="Название этапа"
-            className="zen-input flex-1"
+            className="zen-input flex-1 min-w-0"
           />
-          <div className="flex items-center gap-1 bg-input rounded-xl px-2 py-2 shrink-0">
+          <div className="flex items-center gap-1 bg-input rounded-xl px-2 py-2 flex-shrink-0">
             <input
               type="text"
               inputMode="numeric"
               value={durationInput}
-              onChange={handleDurationChange}
+              onChange={(e) => setDurationInput(e.target.value)}
               maxLength="2"
-              className="w-8 bg-transparent text-center text-foreground focus:outline-none text-sm"
+              className="w-7 bg-transparent text-center text-foreground focus:outline-none text-sm"
             />
-            <span className="text-muted-foreground text-xs whitespace-nowrap">мин</span>
+            <span className="text-muted-foreground text-xs">м</span>
           </div>
         </div>
 

@@ -31,7 +31,7 @@ export const MeditationScreen = ({
   onStop,
 }: MeditationScreenProps) => {
   const circumference = 2 * Math.PI * 140;
-  const strokeDashoffset = circumference * (1 - progress);
+  const strokeDashoffset = circumference * (1 - progress / 100);
 
   return (
     <div
@@ -79,7 +79,7 @@ export const MeditationScreen = ({
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               style={{
-                transition: 'stroke-dashoffset 1s linear',
+                transition: 'stroke-dashoffset 0.95s linear',
               }}
             />
           </svg>
