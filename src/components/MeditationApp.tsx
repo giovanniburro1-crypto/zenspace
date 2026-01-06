@@ -21,13 +21,12 @@ export const MeditationApp = () => {
   const [screen, setScreen] = useState<'home' | 'editor' | 'meditation' | 'complete'>('home');
   const [currentMeditation, setCurrentMeditation] = useState<SavedMeditation | null>(null);
   const [editingMeditation, setEditingMeditation] = useState<SavedMeditation | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   const {
     meditations,
     saveMeditation,
     deleteMeditation,
-    loadMeditations,
+    isLoaded,
   } = useMeditationStorage();
 
   const {
@@ -60,11 +59,6 @@ export const MeditationApp = () => {
       playGong();
     }
   }, [currentStageIndex, isRunning, currentMeditation, playGong]);
-
-  useEffect(() => {
-    loadMeditations();
-    setIsLoaded(true);
-  }, [loadMeditations]);
 
   const handleCreateNew = useCallback(() => {
     setEditingMeditation(null);
