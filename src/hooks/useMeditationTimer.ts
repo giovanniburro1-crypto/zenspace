@@ -40,7 +40,7 @@ export const useMeditationTimer = ({
     }
   }, [currentStageIndex, isRunning, stages.length, onStageChange]);
 
-  // Main timer loop
+  // Main timer loop - update every 1 second
   useEffect(() => {
     if (!isRunning || stages.length === 0) {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -49,7 +49,7 @@ export const useMeditationTimer = ({
 
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        const newTime = prev - 0.1;
+        const newTime = prev - 1;
 
         if (newTime <= 0) {
           setCurrentStageIndex((idx) => {
@@ -69,7 +69,7 @@ export const useMeditationTimer = ({
         }
         return newTime;
       });
-    }, 100);
+    }, 1000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -81,7 +81,7 @@ export const useMeditationTimer = ({
 
   return {
     currentStageIndex,
-    timeLeft: Math.max(0, Math.round(timeLeft)),
+    timeLeft: Math.max(0, timeLeft),
     progress: Math.min(100, progress),
     isRunning,
     startTimer,
