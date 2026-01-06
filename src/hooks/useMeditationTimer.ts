@@ -17,14 +17,6 @@ export const useMeditationTimer = ({
   const [isRunning, setIsRunning] = useState(false);
   const [totalStageTime, setTotalStageTime] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const stagesRef = useRef(stages);
-  const currentStageIndexRef = useRef(0);
-
-  useEffect(() => {
-    stagesRef.current = stages;
-  }, [stages]);
-
-  const currentStage = stages[currentStageIndex];
 
   const startTimer = useCallback(() => {
     if (stages.length === 0) return;
@@ -33,17 +25,22 @@ export const useMeditationTimer = ({
     setTimeLeft(stageDuration);
     setTotalStageTime(stageDuration);
     setCurrentStageIndex(0);
-    currentStageIndexRef.current = 0;
     setIsRunning(true);
-    onStageChange(0);
-  }, [stages, onStageChange]);
+  }, [stages]);
 
   const stopTimer = useCallback(() => {
     setIsRunning(false);
     if (intervalRef.current) clearInterval(intervalRef.current);
   }, []);
 
-  // Main timer loop - updates every 100ms for smooth animation
+  // Call onStageChange when currentStageIndex changes
+  useEffect(() => {
+    if (isRunning && stages.length > 0) {
+      onStageChange(currentStageIndex);
+    }
+  }, [currentStageIndex, isRunning, stages.length, onStageChange]);
+
+  // Main timer loop
   useEffect(() => {
     if (!isRunning || stages.length === 0) {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -52,42 +49,37 @@ export const useMeditationTimer = ({
 
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        const newTimeLeft = prev - 0.1;
+        const newTime = prev - 0.1;
 
-        if (newTimeLeft <= 0) {
-          // Current stage finished, move to next
-          const nextIdx = currentStageIndexRef.current + 1;
-
-          if (nextIdx >= stagesRef.current.length) {
-            // All stages complete
-            setIsRunning(false);
-            onComplete();
-            return 0;
-          } else {
-            // Move to next stage
-            const nextStageDuration = stagesRef.current[nextIdx].duration * 60;
-            setTotalStageTime(nextStageDuration);
-            setCurrentStageIndex(nextIdx);
-            currentStageIndexRef.current = nextIdx;
-            onStageChange(nextIdx);
-            return nextStageDuration;
-          }
+        if (newTime <= 0) {
+          setCurrentStageIndex((idx) => {
+            const nextIdx = idx + 1;
+            if (nextIdx >= stages.length) {
+              setIsRunning(false);
+              onComplete();
+              return idx;
+            } else {
+              const nextDuration = stages[nextIdx].duration * 60;
+              setTotalStageTime(nextDuration);
+              setTimeLeft(nextDuration);
+              return nextIdx;
+            }
+          });
+          return 0;
         }
-
-        return newTimeLeft;
+        return newTime;
       });
-    }, 100); // Update every 100ms instead of 1s
+    }, 100);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, stages, onComplete, onStageChange]);
+  }, [isRunning, stages, onComplete]);
 
   const progress =
     totalStageTime > 0 ? ((totalStageTime - timeLeft) / totalStageTime) * 100 : 0;
 
   return {
-    currentStage,
     currentStageIndex,
     timeLeft: Math.max(0, Math.round(timeLeft)),
     progress: Math.min(100, progress),
